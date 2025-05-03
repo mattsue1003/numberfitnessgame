@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數字運動遊戲</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 92%;
+            max-width: 600px;
+            margin: 10px auto;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        h2 {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+        
+        h3 {
+            font-size: 18px;
+            margin: 8px 0;
+        }
+        
+        .game-description {
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        
+        .instructions {
+            background-color: #ebf5fb;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .exercise-examples {
+            display: flex;
+            flex-direction: column;
+            margin: 15px 0;
+        }
+        
+        .exercise-item {
+            text-align: center;
+            margin: 8px 0;
+            padding: 10px;
+            background-color: #e8f6f3;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .game-controls {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        
+        .control-group {
+            margin: 8px 0;
+            width: 100%;
+        }
+        
+        select, input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border: 1px solid #bdc3c7;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+        
+        button:hover, button:active {
+            background-color: #2980b9;
+        }
+        
+        #number-boxes {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin: 15px 0;
+        }
+        
+        .number-box {
+            width: 45%;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #eaeded;
+            border-radius: 8px;
+            font-size: 46px;
+            font-weight: bold;
+            color: #34495e;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        #exercise-button {
+            width: 100%;
+            margin: 15px 0;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #e74c3c;
+            border-radius: 8px;
+        }
+        
+        #exercise-button:hover, #exercise-button:active {
+            background-color: #c0392b;
+        }
+        
+        #score-display, #time-display {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 8px 0;
+            text-align: center;
+        }
+        
+        #instruction-message {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            color: #e67e22;
+            height: 30px;
+            visibility: hidden;
+        }
+        
+        .result-screen {
+            display: none;
+            text-align: center;
+            padding: 15px;
+        }
+        
+        .big-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 15px 0;
+        }
+        
+        #pause-button {
+            width: 100%;
+            margin-top: 10px;
+            height: 50px;
+            font-size: 18px;
+        }
+        
+        .music-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .music-btn {
+            padding: 8px;
+            background-color: #2ecc71;
+            width: 48%;
+        }
+        
+        .music-btn:hover, .music-btn:active {
+            background-color: #27ae60;
+        }
+        
+        #rules-reminder {
+            font-size: 16px;
+            text-align: center;
+            margin: 8px 0;
+            background-color: #f8f9fa;
+            padding: 8px;
+            border-radius: 6px;
+            color: #2c3e50;
+        }
+        
+        @media (max-width: 360px) {
+            .number-box {
+                font-size: 28px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            h2 {
+                font-size: 18px;
+            }
+            
+            .instructions {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>數字運動遊戲</h1>
+        
+        <div id="setup-screen">
+            <div class="game-description">
+                <div class="instructions" style="text-align: center;">
+                    <h2>遊戲說明</h2>
+                    <p>這是一個訓練認知和運動的雙適能遊戲。兩個框框中會出現隨機數字，如果出現符合您選擇的尾數數字，您需要執行選擇的運動動作並點擊"運動按鈕"。</p>
+                </div>
+                
+                <div class="exercise-examples" style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: center;">
+                    <h3>數字例子</h3>
+                    <p>如選擇尾數3和7，則23、33、87→執行運動動作</p>
+                    <p>如選擇尾數3和7，則31、74→不執行運動動作</p>
+                    <p>其他數字若尾數不符→不動作</p>
+                </div>
+            </div>
+            
+            <div class="game-controls">
+                <div class="control-group">
+                    <h3>選擇尾數數字</h3>
+                    <div id="digit-selector" style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;">
+                        <div style="display: flex; align-items: center; width: 60px;">
+                            <span style="margin-right: 10px; font-size: 18px;">0</span>
+                            <input type="checkbox" value="0" checked style="width: 20px; height: 20px;">
+                        </div>
+                        <div style="display: flex; align-items: center; width: 60px;">
+                            <span style="margin-right: 10px; font-size: 18px;">1</span>
+                            <input type="checkbox" value="1" style="width: 20px; height: 20px;">
+                        </div>
+                        <div style="display: flex; align-items: center; width: 60px;">
+                            <span style="margin-right: 10px; font-size: 18px;">2</span>
+                            <input type="checkbox" value="2" style="width: 20px; height: 20px;">
+                        </div>
+                        <div style="display: flex; align-items: center; width: 60px;">
+                            <span style="margin-right: 10px; font-size: 18px;">3</span>
+                            <input type="checkbox" value="3" checked style="width: 20px; height: 20px;">
+                        </div>
+                        <div style="display: flex; align-items: center; width: 60px;">
+                            <span style="margin-right: 10px; font-size: 18px;">4</span>
+                            <input type="checkbox" value="4" style="width: 20px; height: 20px;">
+                        </div>
+                        <div style="display: flex; align-items: center; width: 60px;">
+                            <span style="margin-right: 10px; font-size: 18px;">5</span>
+                            <input type="checkbox" value="5" style="width: 20px; height: 20px;">
+                        </div>
+                        <div style="display: flex; align-items: center; width: 60px;">
+                            <span style="margin-right: 10px; font-size: 18px;">6</span>
+                            <input type="checkbox" value="6" style="width: 20px; height: 20px;">
+                        </div>
+                        <div style="display: flex; align-items: center; width: 60px;">
+                            <span style="margin-right: 10px; font-size: 18px;">7</span>
+                            <input type="checkbox" value="7" checked style="width: 20px; height: 20px;">
+                        </div>
+                        <div style="display: flex; align-items: center; width: 60px;">
+                            <span style="margin-right: 10px; font-size: 18px;">8</span>
+                            <input type="checkbox" value="8" style="width: 20px; height: 20px;">
+                        </div>
+                        <div style="display: flex; align-items: center; width: 60px;">
+                            <span style="margin-right: 10px; font-size: 18px;">9</span>
+                            <input type="checkbox" value="9" style="width: 20px; height: 20px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>選擇運動方式</h3>
+                    <select id="exercise-type-select">
+                        <option value="squat">深蹲</option>
+                        <option value="hinge">髖鉸鏈</option>
+                        <option value="lunge">弓箭步</option>
+                        <option value="jumping">原地跳躍</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <h3>選擇遊戲時間</h3>
+                    <input type="number" id="time-select" min="30" max="300" value="60" step="30">
+                    <small>秒（30-300秒）</small>
+                </div>
+                
+                <div class="control-group">
+                    <h3>數字更換速度</h3>
+                    <select id="speed-select">
+                        <option value="5000">非常慢 (5秒)</option>
+                        <option value="4000">慢 (4秒)</option>
+                        <option value="3000" selected>普通 (3秒)</option>
+                        <option value="2000">快 (2秒)</option>
+                        <option value="1500">非常快 (1.5秒)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <h3>背景音樂</h3>
+                    <div class="music-controls">
+                        <button id="music-on" class="music-btn">開啟音樂</button>
+                        <button id="music-off" class="music-btn">關閉音樂</button>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="start-button">開始遊戲</button>
+        </div>
+        
+        <div id="game-screen" style="display:none;">
+            <div id="time-display">剩餘時間: 60秒</div>
+            <div id="score-display">得分: 0</div>
+            <div id="rules-reminder">當尾數為0,3,7時→深蹲</div>
+            <div id="instruction-message"></div>
+            
+            <div id="number-boxes">
+                <div class="number-box" id="box1">0</div>
+                <div class="number-box" id="box2">0</div>
+            </div>
+            
+            <button id="exercise-button">運動完成！</button>
+            
+            <div class="game-buttons">
+                <button id="pause-button">暫停</button>
+                <button id="end-button">結束遊戲</button>
+            </div>
+        </div>
+        
+        <div id="result-screen" class="result-screen">
+            <h2>遊戲結束！</h2>
+            <p>您的最終得分：</p>
+            <div class="big-score" id="final-score">0</div>
+            <button id="restart-button">再玩一次</button>
+        </div>
+    </div>
+
+    <script>
+        // 遊戲變數
+        let gameMode = 'simple';
+        let gameTime = 60;
+        let score = 0;
+        let remainingTime = 0;
+        let numberUpdateInterval = null;
+        let timerInterval = null;
+        let gameRunning = false;
+        let gamePaused = false;
+        let exerciseNeeded = false;
+        let numberBoxes = [];
+        let numberUpdateSpeed = 3000; // 初始速度為3秒
+        let audioElement = null;
+        let musicEnabled = false;
+        let lastExerciseNeeded = undefined; // 上一次是否需要運動
+        let userClicked = false; // 用戶是否點擊了運動按鈕
+        
+        // DOM元素
+        const setupScreen = document.getElementById('setup-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const timeSelect = document.getElementById('time-select');
+        const startButton = document.getElementById('start-button');
+        const exerciseButton = document.getElementById('exercise-button');
+        const pauseButton = document.getElementById('pause-button');
+        const restartButton = document.getElementById('restart-button');
+        const timeDisplay = document.getElementById('time-display');
+        const scoreDisplay = document.getElementById('score-display');
+        const instructionMessage = document.getElementById('instruction-message');
+        const finalScore = document.getElementById('final-score');
+        const musicOnButton = document.getElementById('music-on');
+        const musicOffButton = document.getElementById('music-off');
+        const box1 = document.getElementById('box1');
+        const box2 = document.getElementById('box2');
+        
+        // 初始化數字框框
+        numberBoxes = [box1, box2];
+        
+        // 初始化音樂
+        function initAudio() {
+            audioElement = new Audio();
+            
+            // 使用自由授權的音樂
+            audioElement.src = 'https://cdn.freesound.org/previews/521/521639_7717067-lq.mp3';
+            audioElement.loop = true;
+            
+            // 初始禁音
+            audioElement.volume = 0;
+            audioElement.play().catch(error => {
+                console.log('音訊播放錯誤:', error);
+            });
+        }
+        
+        // 初始化音訊
+        initAudio();
+        
+        // 事件監聽器
+        startButton.addEventListener('click', startGame);
+        exerciseButton.addEventListener('click', handleExercise);
+        pauseButton.addEventListener('click', togglePause);
+        restartButton.addEventListener('click', resetGame);
+        musicOnButton.addEventListener('click', () => toggleMusic(true));
+        musicOffButton.addEventListener('click', () => toggleMusic(false));
+        document.getElementById('end-button').addEventListener('click', endGame);
+        
+        // 切換音樂
+        function toggleMusic(on) {
+            musicEnabled = on;
+            
+            if (audioElement) {
+                if (on) {
+                    audioElement.volume = 0.5;
+                    if (audioElement.paused) {
+                        audioElement.play().catch(error => {
+                            console.log('音訊播放錯誤:', error);
+                        });
+                    }
+                } else {
+                    audioElement.volume = 0;
+                }
+            }
+        }
+        
+        // 啟動遊戲
+        function startGame() {
+            gameTime = parseInt(timeSelect.value);
+            numberUpdateSpeed = parseInt(document.getElementById('speed-select').value);
+            
+            // 檢查是否選擇了至少一個尾數
+            if (getSelectedDigits().length === 0) {
+                alert('請至少選擇一個尾數數字');
+                return;
+            }
+            
+            if (isNaN(gameTime) || gameTime < 30 || gameTime > 300) {
+                alert('請輸入有效的遊戲時間（30-300秒）');
+                return;
+            }
+            
+            score = 0;
+            remainingTime = gameTime;
+            lastExerciseNeeded = undefined;
+            userClicked = false;
+            
+            setupScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            
+            // 更新規則提示文字
+            updateRulesReminder();
+            
+            updateDisplay();
+            startTimer();
+            gameRunning = true;
+            
+            // 初始更新數字
+            updateAllNumbers();
+            
+            // 開始定期更新數字
+            if (numberUpdateInterval) {
+                clearInterval(numberUpdateInterval);
+            }
+            
+            numberUpdateInterval = setInterval(() => {
+                if (!gamePaused && gameRunning) {
+                    updateAllNumbers();
+                }
+            }, numberUpdateSpeed);
+            
+            // 如果音樂已開啟，確保音樂正在播放
+            if (musicEnabled && audioElement && audioElement.paused) {
+                audioElement.play().catch(error => {
+                    console.log('音訊播放錯誤:', error);
+                });
+            }
+        }
+        
+        // 更新規則提示文字
+        function updateRulesReminder() {
+            const selectedDigits = getSelectedDigits();
+            const exerciseType = document.getElementById('exercise-type-select').options[document.getElementById('exercise-type-select').selectedIndex].text;
+            
+            let digitText = selectedDigits.join(',');
+            if (digitText.length > 0) {
+                document.getElementById('rules-reminder').textContent = `當尾數為${digitText}時→${exerciseType}`;
+            } else {
+                document.getElementById('rules-reminder').textContent = `請至少選擇一個尾數數字`;
+            }
+        }
+        
+        // 更新顯示
+        function updateDisplay() {
+            timeDisplay.textContent = `剩餘時間: ${remainingTime}秒`;
+            scoreDisplay.textContent = `得分: ${score}`;
+        }
+        
+        // 啟動計時器
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (gamePaused) return;
+                
+                remainingTime--;
+                updateDisplay();
+                
+                if (remainingTime <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        // 生成單個隨機數字
+        function generateRandomNumber() {
+            // 獲取用戶選擇的尾數數字
+            const selectedDigits = getSelectedDigits();
+            
+            // 如果沒有選擇任何尾數，預設選擇0、3和7
+            if (selectedDigits.length === 0) {
+                selectedDigits.push(0, 3, 7);
+            }
+            
+            // 增加符合規則數字出現的機率
+            const randomNum = Math.random();
+            
+            // 30-50%的機率生成符合規則的數字
+            if (randomNum < (Math.random() * 0.2 + 0.3)) {
+                // 生成符合規則的數字（從選中的尾數中隨機選擇一個）
+                const randomDigit = selectedDigits[Math.floor(Math.random() * selectedDigits.length)];
+                return Math.floor(Math.random() * 10) * 10 + randomDigit;
+            } else {
+                // 生成普通數字，但避開選擇的尾數
+                let num;
+                do {
+                    num = Math.floor(Math.random() * 100);
+                } while (selectedDigits.includes(num % 10));
+                return num;
+            }
+        }
+        
+        // 獲取用戶選擇的尾數數字
+        function getSelectedDigits() {
+            const checkboxes = document.querySelectorAll('#digit-selector input[type="checkbox"]:checked');
+            const digits = [];
+            checkboxes.forEach(checkbox => {
+                digits.push(parseInt(checkbox.value));
+            });
+            return digits;
+        }
+        
+        // 更新所有數字框框
+        function updateAllNumbers() {
+            // 更新所有數字框框
+            let hasExerciseNumber = false;
+            
+            // 決定這一輪是否出現運動數字 (30%-50%的機率)
+            let shouldShowExercise = Math.random() < (Math.random() * 0.2 + 0.3);
+            
+            for (let i = 0; i < numberBoxes.length; i++) {
+                let number;
+                
+                if (shouldShowExercise && i === 0) { // 只在第一個框框可能出現運動數字
+                    // 獲取用戶選擇的尾數
+                    const selectedDigits = getSelectedDigits();
+                    if (selectedDigits.length > 0) {
+                        // 從選擇的尾數中隨機選一個
+                        const randomDigit = selectedDigits[Math.floor(Math.random() * selectedDigits.length)];
+                        number = Math.floor(Math.random() * 10) * 10 + randomDigit;
+                        hasExerciseNumber = true;
+                    } else {
+                        // 如果沒有選擇任何尾數，生成普通數字
+                        number = Math.floor(Math.random() * 100);
+                    }
+                } else {
+                    // 生成普通數字，但避開選擇的尾數
+                    const selectedDigits = getSelectedDigits();
+                    if (selectedDigits.length > 0) {
+                        do {
+                            number = Math.floor(Math.random() * 100);
+                        } while (selectedDigits.includes(number % 10));
+                    } else {
+                        number = Math.floor(Math.random() * 100);
+                    }
+                }
+                
+                numberBoxes[i].textContent = number;
+            }
+            
+            // 檢查是否有符合規則的數字
+            const selectedDigits = getSelectedDigits();
+            exerciseNeeded = false;
+            
+            // 檢查每個數字框是否包含符合規則的尾數
+            for (let i = 0; i < numberBoxes.length; i++) {
+                const number = parseInt(numberBoxes[i].textContent);
+                if (selectedDigits.includes(number % 10)) {
+                    exerciseNeeded = true;
+                    break;
+                }
+            }
+            
+            // 記錄上次是否需要運動，用於自動加分
+            lastExerciseNeeded = exerciseNeeded;
+            
+            // 如果不需要運動，且用戶沒有點擊運動按鈕，自動加1分
+            if (!exerciseNeeded && !userClicked) {
+                score += 1;
+                scoreDisplay.textContent = `得分: ${score}`;
+            }
+            
+            // 如果需要運動但用戶沒有點擊運動按鈕，自動扣1分
+            if (lastExerciseNeeded && !userClicked && typeof lastExerciseNeeded !== 'undefined') {
+                score = Math.max(0, score - 1);
+                scoreDisplay.textContent = `得分: ${score}`;
+            }
+            
+            // 重置用戶點擊狀態
+            userClicked = false;
+        }
+        
+        // 處理運動按鈕
+        function handleExercise() {
+            if (!gameRunning || gamePaused) return;
+            
+            // 標記用戶已點擊
+            userClicked = true;
+            
+            // 獲取選擇的運動類型
+            const exerciseType = document.getElementById('exercise-type-select').value;
+            const exerciseTypeText = document.getElementById('exercise-type-select').options[document.getElementById('exercise-type-select').selectedIndex].text;
+            
+            if (exerciseNeeded) {
+                // 正確的運動，加1分
+                score += 1;
+                scoreDisplay.textContent = `得分: ${score}`;
+                
+                // 暫時顯示正確反饋，然後清除
+                instructionMessage.textContent = `${exerciseTypeText}做得好！+1分`;
+                instructionMessage.style.visibility = 'visible';
+                
+                // 先清除舊的定時器
+                if (numberUpdateInterval) {
+                    clearInterval(numberUpdateInterval);
+                }
+                
+                // 生成新的數字並清除反饋
+                setTimeout(() => {
+                    if (gameRunning) {
+                        updateAllNumbers();
+                        instructionMessage.style.visibility = 'hidden';
+                        
+                        // 重新啟動數字更新定時器
+                        numberUpdateInterval = setInterval(() => {
+                            if (!gamePaused && gameRunning) {
+                                updateAllNumbers();
+                            }
+                        }, numberUpdateSpeed);
+                    }
+                }, 1000); // 延長反饋顯示時間，避免數字更新太快
+            } else {
+                // 不需要運動時運動，扣1分
+                score = Math.max(0, score - 1);
+                scoreDisplay.textContent = `得分: ${score}`;
+                
+                // 暫時顯示錯誤反饋，然後清除
+                instructionMessage.textContent = '不需要運動！-1分';
+                instructionMessage.style.visibility = 'visible';
+                
+                setTimeout(() => {
+                    instructionMessage.style.visibility = 'hidden';
+                }, 1000);
+            }
+        }
+        
+        // 切換暫停
+        function togglePause() {
+            gamePaused = !gamePaused;
+            
+            if (gamePaused) {
+                pauseButton.textContent = '繼續';
+            } else {
+                pauseButton.textContent = '暫停';
+            }
+        }
+        
+        // 結束遊戲
+        function endGame() {
+            gameRunning = false;
+            clearInterval(timerInterval);
+            clearInterval(numberUpdateInterval);
+            
+            gameScreen.style.display = 'none';
+            resultScreen.style.display = 'block';
+            finalScore.textContent = score;
+        }
+        
+        // 重置遊戲
+        function resetGame() {
+            resultScreen.style.display = 'none';
+            setupScreen.style.display = 'block';
+            gamePaused = false;
+        }
+    </script>
+</body>
+</html>
